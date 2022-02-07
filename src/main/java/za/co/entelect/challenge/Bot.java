@@ -13,7 +13,15 @@ import java.security.SecureRandom;
 
 public class Bot {
 
+    private static final int minSpeed = 0;
+    private static final int speedState1 = 3;
+    private static final int initialSpeed = 5;
+    private static final int speedState2 = 6;
+    private static final int speedState3 = 8;
     private static final int maxSpeed = 9;
+    private static final int boostSpeed = 15;
+    private static final int[] speedState = {minSpeed, speedState1, initialSpeed, speedState2, speedState3, maxSpeed, boostSpeed};
+
     private List<Command> directionList = new ArrayList<>();
 
     private final Random random;
@@ -45,8 +53,20 @@ public class Bot {
         List<Object> blocks = getBlocksInFront(myCar.position.lane, myCar.position.block, gameState);
         List<Object> nextBlocks = blocks.subList(0,1);
 
-        // Fix mechanism
+        // Fix mechanism (When reach maximum speed for damage, fix the car)
         if (myCar.damage >= 5) {
+            return FIX;
+        }
+        if (myCar.damage == 4 && myCar.speed == speedState1) {
+            return FIX;
+        }
+        if (myCar.damage == 3 && myCar.speed == speedState2) {
+            return FIX;
+        }
+        if (myCar.damage == 2 && myCar.speed == speedState3) {
+            return FIX;
+        }
+        if (myCar.damage == 1 && myCar.speed == maxSpeed) {
             return FIX;
         }
 
@@ -87,7 +107,7 @@ public class Bot {
         // Tweet mechanism
 
         // Default return value
-        return DO_NOTHING;
+        return ACCELERATE; // Change do DO_NOTHING if avoidance mechanism is finished
     }
 
     private Boolean hasPowerUp(PowerUps powerUpToCheck, PowerUps[] available) {
