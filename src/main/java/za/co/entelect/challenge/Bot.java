@@ -19,11 +19,15 @@ public class Bot {
     private final Random random;
 
     private final static Command ACCELERATE = new AccelerateCommand();
+    private final static Command DECELERATE = new DecelerateCommand();
+    private final static Command DO_NOTHING = new DoNothingCommand();
+    private final static Command FIX = new FixCommand();
+
     private final static Command LIZARD = new LizardCommand();
     private final static Command OIL = new OilCommand();
     private final static Command BOOST = new BoostCommand();
     private final static Command EMP = new EmpCommand();
-    private final static Command FIX = new FixCommand();
+    private static Command TWEET; // Not final because it can be reassigned
 
     private final static Command TURN_RIGHT = new ChangeLaneCommand(1);
     private final static Command TURN_LEFT = new ChangeLaneCommand(-1);
@@ -41,29 +45,49 @@ public class Bot {
         List<Object> blocks = getBlocksInFront(myCar.position.lane, myCar.position.block, gameState);
         List<Object> nextBlocks = blocks.subList(0,1);
 
+        // Fix mechanism
         if (myCar.damage >= 5) {
             return FIX;
         }
 
-        if (blocks.contains(Terrain.MUD) || nextBlocks.contains(Terrain.WALL)) {
+        // Avoidance mechanism (Left or Right)
+        if (nextBlocks.contains(Terrain.MUD) || nextBlocks.contains(Terrain.WALL)) {
+            int i = random.nextInt(directionList.size());
+            return directionList.get(i);
+        }
+
+        // Avoidance mechanism (Accelerate or Decelerate)
+
+        // Lizard mechanism
+        if (blocks.contains(Terrain.MUD) || blocks.contains(Terrain.WALL)) {
             if (hasPowerUp(PowerUps.LIZARD, myCar.powerups)) {
                 return LIZARD;
             }
         }
 
+        // Boost mechanism
         if (hasPowerUp(PowerUps.BOOST, myCar.powerups)) {
             return BOOST;
         }
+
+        // Oil mechanism
         if (myCar.speed == maxSpeed) {
             if (hasPowerUp(PowerUps.OIL, myCar.powerups)) {
                 return OIL;
             }
+        }
+
+        // EMP mechanism
+        if (myCar.speed == maxSpeed) {
             if (hasPowerUp(PowerUps.EMP, myCar.powerups)) {
                 return EMP;
             }
         }
 
-        return ACCELERATE;
+        // Tweet mechanism
+
+        // Default return value
+        return DO_NOTHING;
     }
 
     private Boolean hasPowerUp(PowerUps powerUpToCheck, PowerUps[] available) {
