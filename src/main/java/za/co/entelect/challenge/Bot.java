@@ -72,51 +72,65 @@ public class Bot {
 
         // Avoidance mechanism (Left or Right)
         if (nextBlocks.contains(Terrain.MUD) || nextBlocks.contains(Terrain.WALL)) {
-            int i = random.nextInt(directionList.size());
-            return directionList.get(i);
+            
         }
 
         // Avoidance mechanism (Accelerate or Decelerate)
 
         // Lizard mechanism
         if (blocks.contains(Terrain.MUD) || blocks.contains(Terrain.WALL)) {
-            if (hasPowerUp(PowerUps.LIZARD, myCar.powerups)) {
+            if (PowerUp(PowerUps.LIZARD, myCar.powerups)>0) {
                 return LIZARD;
             }
+            if (myCar.position.lane == 1) {
+                return TURN_RIGHT;
+            }
+            if (myCar.position.lane == 4) {
+                return TURN_LEFT;
+            }
+            int i = random.nextInt(directionList.size());
+            return directionList.get(i);
         }
 
         // Boost mechanism
-        if (hasPowerUp(PowerUps.BOOST, myCar.powerups)) {
+        if (PowerUp(PowerUps.BOOST, myCar.powerups)>0) {
             return BOOST;
         }
 
         // Oil mechanism
         if (myCar.speed == maxSpeed) {
-            if (hasPowerUp(PowerUps.OIL, myCar.powerups)) {
+            if (PowerUp(PowerUps.OIL, myCar.powerups)>0) {
                 return OIL;
             }
         }
 
         // EMP mechanism
         if (myCar.speed == maxSpeed) {
-            if (hasPowerUp(PowerUps.EMP, myCar.powerups)) {
+            if (PowerUp(PowerUps.EMP, myCar.powerups)>0) {
                 return EMP;
             }
         }
 
         // Tweet mechanism
+        if (PowerUp(PowerUps.TWEET, myCar.powerups)>0) {
+            if (myCar.position.block > opponent.position.block) {
+                TWEET = new TweetCommand(opponent.position.lane,opponent.position.block+opponent.speed-1);
+                return TWEET;
+            }
+        }
 
         // Default return value
         return ACCELERATE; // Change do DO_NOTHING if avoidance mechanism is finished
     }
 
-    private Boolean hasPowerUp(PowerUps powerUpToCheck, PowerUps[] available) {
+    private int PowerUp(PowerUps powerUpToCheck, PowerUps[] available) {
+        int res = 0;
         for (PowerUps powerUp: available) {
             if (powerUp.equals(powerUpToCheck)) {
-                return true;
+                res += 1;
             }
         }
-        return false;
+        return res;
     }
 
     /**
