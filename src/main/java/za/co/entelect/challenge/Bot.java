@@ -70,51 +70,46 @@ public class Bot {
             return FIX;
         }
 
-        // Avoidance mechanism (Left or Right)
-        if (nextBlocks.contains(Terrain.MUD) || nextBlocks.contains(Terrain.WALL)) {
-            
-        }
-
         // Avoidance mechanism (Accelerate or Decelerate)
 
-        // Lizard mechanism
-        if (blocks.contains(Terrain.MUD) || blocks.contains(Terrain.WALL)) {
-            if (PowerUp(PowerUps.LIZARD, myCar.powerups)>0) {
-                return LIZARD;
-            }
+        // Lizard mechanism and Avoidance mechanism (Left or Right)
+        if (blocks.contains(Terrain.MUD) || blocks.contains(Terrain.WALL) || blocks.contains(Terrain.OIL_SPILL)) {
             if (myCar.position.lane == 1) {
                 return TURN_RIGHT;
             }
             if (myCar.position.lane == 4) {
                 return TURN_LEFT;
             }
+            if (PowerUp(PowerUps.LIZARD, myCar.powerups) > 0) {
+                return LIZARD;
+            }
             int i = random.nextInt(directionList.size());
             return directionList.get(i);
         }
 
         // Boost mechanism
-        if (PowerUp(PowerUps.BOOST, myCar.powerups)>0) {
+        if (PowerUp(PowerUps.BOOST, myCar.powerups) > 0) {
             return BOOST;
         }
 
         // Oil mechanism
         if (myCar.speed == maxSpeed) {
-            if (PowerUp(PowerUps.OIL, myCar.powerups)>0) {
+            if (PowerUp(PowerUps.OIL, myCar.powerups) > 0) {
                 return OIL;
             }
         }
 
         // EMP mechanism
         if (myCar.speed == maxSpeed) {
-            if (PowerUp(PowerUps.EMP, myCar.powerups)>0) {
+            if (PowerUp(PowerUps.EMP, myCar.powerups) > 0) {
                 return EMP;
             }
         }
 
         // Tweet mechanism
-        if (PowerUp(PowerUps.TWEET, myCar.powerups)>0) {
+        if (PowerUp(PowerUps.TWEET, myCar.powerups) > 0) {
             if (myCar.position.block > opponent.position.block) {
-                TWEET = new TweetCommand(opponent.position.lane,opponent.position.block+opponent.speed-1);
+                TWEET = new TweetCommand(opponent.position.lane,opponent.position.block + opponent.speed - 1);
                 return TWEET;
             }
         }
@@ -153,5 +148,4 @@ public class Bot {
         }
         return blocks;
     }
-
 }
