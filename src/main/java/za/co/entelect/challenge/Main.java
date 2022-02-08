@@ -34,7 +34,6 @@ public class Main {
 
                 GameState gameState = gson.fromJson(state, GameState.class);
                 Command command = bot.run(gameState);
-
                 System.out.println(String.format("C;%d;%s", roundNumber, command.render()));
             } catch (Exception e) {
                 e.printStackTrace();
