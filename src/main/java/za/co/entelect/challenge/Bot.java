@@ -9,7 +9,6 @@ import java.util.*;
 
 import static java.lang.Math.max;
 
-import java.security.SecureRandom;
 
 public class Bot {
 
@@ -23,8 +22,6 @@ public class Bot {
     private static final int[] speedState = {minSpeed, speedState1, initialSpeed, speedState2, speedState3, maxSpeed, boostSpeed};
 
     private List<Command> directionList = new ArrayList<>();
-
-    private final Random random;
 
     private final static Command ACCELERATE = new AccelerateCommand();
     private final static Command DECELERATE = new DecelerateCommand();
@@ -41,18 +38,15 @@ public class Bot {
     private final static Command TURN_LEFT = new ChangeLaneCommand(-1);
 
     public Bot() {
-        this.random = new SecureRandom();
         directionList.add(TURN_LEFT);
         directionList.add(TURN_RIGHT);
     }
 
     public Command run(GameState gameState) {
         Car myCar = gameState.player;
-        Car opponent = gameState.opponent;
-
-        List<Object> blocks = getBlocksInFront(myCar.position.lane, myCar.position.block, gameState);
-        List<Object> rightblocks = getBlocksInRightFront(myCar.position.lane, myCar.position.block, gameState);
-        List<Object> leftblocks = getBlocksInLeftFront(myCar.position.lane, myCar.position.block, gameState);
+        List<Object> blocksMax = getBlocksInFrontMax(myCar.position.lane, myCar.position.block, gameState); //blok maksimal yang dapat ditempuh player di lane yg sama
+        List<Object> rightblocks = getBlocksInRightFront(myCar.position.lane, myCar.position.block, gameState); //blok maksimal yang dapat ditempuh player di lane kanannya
+        List<Object> leftblocks = getBlocksInLeftFront(myCar.position.lane, myCar.position.block, gameState); //blok maksimal yang dapat ditempuh player di lane kirinya
 
         // Fix if car completely broken
         if (myCar.damage >= 5) {
@@ -64,35 +58,43 @@ public class Bot {
             return ACCELERATE;
         }
 
-        // Lizard mechanism and Avoidance mechanism (Left or Right)
-        if (blocks.contains(Terrain.MUD) || blocks.contains(Terrain.WALL) || blocks.contains(Terrain.OIL_SPILL)) {
-            int SpeedFront = blockReductionSpeed(blocks, gameState);
+        // Lizard mechanism and Avoidance mechanism
+        if (checkObstacle(blocksMax)) {
+            int SpeedFront = blockReductionSpeed(blocksMax, gameState);
             int SpeedRight = blockReductionSpeed(rightblocks, gameState);
             int SpeedLeft = blockReductionSpeed(leftblocks, gameState);
-            int damageFront = countDamage(blocks);
+            int damageFront = countDamage(blocksMax);
             int damageRight = countDamage(rightblocks);
             int damageLeft = countDamage(leftblocks);
             if (myCar.position.lane == 1) {
                 if (damageFront != damageRight) {
                     if (damageFront < damageRight) {
                         if (PowerUp(PowerUps.LIZARD, myCar.powerups) > 0) {
-                             return LIZARD;
+                            List<Object> blocks = getBlocksInFront(myCar.position.lane, myCar.position.block, gameState);
+                            if(checkObstacle(blocks)) {
+                                return LIZARD;
+                            }
+                            return attack(gameState);
                         }
                         if (checkAcc(gameState)) {
                             return ACCELERATE;
                         }
-                        return DO_NOTHING;
+                        return attack(gameState);
                     }
                     return TURN_RIGHT;
                 }
                 if (PowerUp(PowerUps.LIZARD, myCar.powerups) > 0) {
-                    return LIZARD;
+                    List<Object> blocks = getBlocksInFront(myCar.position.lane, myCar.position.block, gameState);
+                    if(checkObstacle(blocks)) {
+                        return LIZARD;
+                    }
+                    return attack(gameState);
                 }
                 if (SpeedFront >= SpeedRight) {
                     if (checkAcc(gameState)) {
                         return ACCELERATE;
                     }
-                    return DO_NOTHING;
+                    return attack(gameState);
                 }
                 return TURN_RIGHT;
             }
@@ -100,35 +102,47 @@ public class Bot {
                 if (damageFront != damageLeft) {
                     if (damageFront < damageLeft) {
                         if (PowerUp(PowerUps.LIZARD, myCar.powerups) > 0) {
-                             return LIZARD;
+                            List<Object> blocks = getBlocksInFront(myCar.position.lane, myCar.position.block, gameState);
+                            if(checkObstacle(blocks)) {
+                                return LIZARD;
+                            }
+                            return attack(gameState);
                         }
                         if (checkAcc(gameState)) {
                             return ACCELERATE;
                         }
-                        return DO_NOTHING;
+                        return attack(gameState);
                     }
                     return TURN_LEFT;
                 }
                 if (PowerUp(PowerUps.LIZARD, myCar.powerups) > 0) {
-                    return LIZARD;
+                    List<Object> blocks = getBlocksInFront(myCar.position.lane, myCar.position.block, gameState);
+                    if(checkObstacle(blocks)) {
+                        return LIZARD;
+                    }
+                    return attack(gameState);
                 }
                 if (SpeedFront >= SpeedLeft) {
                     if (checkAcc(gameState)) {
                         return ACCELERATE;
                     }
-                    return DO_NOTHING;
+                    return attack(gameState);
                 }
                 return TURN_LEFT;
             }
             if (damageLeft != 0 && damageRight != 0) {
                 if (PowerUp(PowerUps.LIZARD, myCar.powerups) > 0) {
-                    return LIZARD;
+                    List<Object> blocks = getBlocksInFront(myCar.position.lane, myCar.position.block, gameState);
+                    if(checkObstacle(blocks)) {
+                        return LIZARD;
+                    }
+                    return attack(gameState);
                 }
                 if (damageFront <= damageLeft && damageFront <= damageRight) {
                     if (checkAcc(gameState)) {
                         return ACCELERATE;
                     }
-                    return DO_NOTHING;
+                    return attack(gameState);
                 }
                 if (damageLeft < damageRight) {
                     return TURN_LEFT;
@@ -148,22 +162,21 @@ public class Bot {
 
         // Boost mechanism
         if (PowerUp(PowerUps.BOOST, myCar.powerups) > 0) {
-            if (myCar.damage > 0) {
-                return FIX;
+            if (canBoost(gameState)) {
+                return BOOST;
             }
-            return BOOST;
-        }
-        // dari sini kebawah sampe do_nothing kayany masih bisa di fix
-        //ACC mechanism
-        if (checkAcc(gameState)) {
-            return ACCELERATE;
+            return FIX;
         }
 
+        //CHECK BOOST or ACCELERATE mechanism
         if (rightblocks.contains(Terrain.BOOST) && countDamage(rightblocks) == 0) {
             return TURN_RIGHT;
         }
         if (leftblocks.contains(Terrain.BOOST) && countDamage(leftblocks) == 0) {
             return TURN_LEFT;
+        }
+        if (checkAcc(gameState)) {
+            return ACCELERATE;
         }
 
         //FIX mechanism
@@ -180,27 +193,38 @@ public class Bot {
             return FIX;
         }
 
+        //attack MECHANISM
+        Command Attack = attack(gameState);
+        if (Attack != DO_NOTHING) {
+            return Attack;
+        }
+
+        // bisa ditembah mechanism turn right turn left
+        return DO_NOTHING;
+    }
+
+    //fungsi untuk melakukan attack (jika memungkinkan)
+    private Command attack(GameState gameState) {
         // Tweet mechanism
-        if (PowerUp(PowerUps.TWEET, myCar.powerups) > 0) {
-            TWEET = new TweetCommand(opponent.position.lane,opponent.position.block + opponent.speed + 3);
+        if (PowerUp(PowerUps.TWEET, gameState.player.powerups) > 0) {
+            TWEET = new TweetCommand(gameState.opponent.position.lane,gameState.opponent.position.block + gameState.opponent.speed + 3);
             return TWEET;
         }
 
         // EMP mechanism
-        if (PowerUp(PowerUps.EMP, myCar.powerups) > 0 && (myCar.position.block < opponent.position.block)) {
+        if (PowerUp(PowerUps.EMP, gameState.player.powerups) > 0 && (gameState.player.position.block < gameState.opponent.position.block)) {
             return EMP;
         }
 
         // Oil mechanism
-        if (PowerUp(PowerUps.OIL, myCar.powerups) > 0 && (myCar.position.block > opponent.position.block)) {
+        if (PowerUp(PowerUps.OIL, gameState.player.powerups) > 0 && (gameState.player.position.block > gameState.opponent.position.block)) {
             return OIL;
         }
-
-        // TURN mechanism (pastiin klo turn right atau turn left dia gakena obstacle, klo kena mending do nothing, terus turn right turn leftnya sesuai ada atau engganya powerup)
         // Default return value
-        return DO_NOTHING; // Change do DO_NOTHING if avoidance mechanism is finished
+        return DO_NOTHING;
     }
 
+    //fungsi untuk menghitung jumlah powerup tertentu yang dimiliki
     private int PowerUp(PowerUps powerUpToCheck, PowerUps[] available) {
         int res = 0;
         for (PowerUps powerUp: available) {
@@ -211,7 +235,15 @@ public class Bot {
         return res;
     }
 
-    //check ACCELERATE or DO_NOTHING
+    // fungsi check obstacle
+    private boolean checkObstacle(List<Object> blocksMax) {
+        if (blocksMax.contains(Terrain.MUD) || blocksMax.contains(Terrain.WALL) || blocksMax.contains(Terrain.OIL_SPILL)) {
+            return true;
+        }
+        return false;
+    }
+
+    //check bisa accelerate atau tidak
     private boolean checkAcc(GameState gameState) {
         int damage = gameState.player.damage;
         int speed = gameState.player.speed;
@@ -239,7 +271,7 @@ public class Bot {
         return false;
     }
     
-    // Check how the blocks reduce the speed
+    // fungsi menghitung perkiraan speed setelah bergerak
     private int blockReductionSpeed(List<Object> blocks, GameState gameState) {
         int speedNow = gameState.player.speed;
         if (blocks.contains(Terrain.WALL)) {
@@ -254,6 +286,8 @@ public class Bot {
         }
         return speedNow;
     }
+
+    //fungsi cek pengurangan state speed
     private int lowerSpeed(int speed) {
         if (speed == Bot.speedState2) {
             return Bot.speedState1;
@@ -265,7 +299,8 @@ public class Bot {
         }
         return Bot.speedState1;
     }
-    // count damage car
+
+    // fungsi menghitung perkiraan damage car
     private int countDamage(List<Object> blocks) {
         int count = 0;
         for (Object i : blocks) {
@@ -282,34 +317,63 @@ public class Bot {
         return count;
     }
 
+    //fungsi melakukan cek apakah bisa melakukan boost hingga maxspeed
+    private boolean canBoost(GameState gameState) {
+        if (PowerUp(PowerUps.BOOST, gameState.player.powerups) > 0) {
+            if (gameState.player.damage > 0) {
+                return false;
+            }
+            return true;
+        }
+        return false;
+    }
+
     /**
      * Returns map of blocks and the objects in the for the current lanes, returns the amount of blocks that can be
      * traversed at max speed.
      **/
-    private List<Object> getBlocksInFront(int lane, int block, GameState gameState) {
+    private List<Object> getBlocksInFrontMax(int lane, int block, GameState gameState) {
         List<Lane[]> map = gameState.lanes;
         List<Object> blocks = new ArrayList<>();
         int startBlock = map.get(0)[0].position.block;
 
         Lane[] laneList = map.get(lane - 1);
         int speed;
-        if(PowerUp(PowerUps.BOOST, gameState.player.powerups) > 0) {
+        if(canBoost(gameState)) {
             speed = Bot.boostSpeed;
+        }
+        else if(!checkAcc(gameState)) {
+            return getBlocksInFront(lane,block,gameState);
         }
         else {
             speed = gameState.player.speed;
-            if (checkAcc(gameState)) {
-                for (int i = 0;i < 5;i++){
-                    if (speed == Bot.speedState1) {
-                        speed = Bot.speedState2;
-                    } // asumsikan jika maju lurus dia accelerate, cek speedState diatas speed player sekarang
-                    else if (speed == Bot.speedState[i]) {
-                        speed = Bot.speedState[i+1];
-                        break;
-                    }
+            for (int i = 0;i < 5;i++){
+                if (speed == Bot.speedState1) {
+                    speed = Bot.speedState2;
+                } // asumsikan jika maju lurus dia accelerate, cek speedState diatas speed player sekarang
+                else if (speed == Bot.speedState[i]) {
+                    speed = Bot.speedState[i+1];
+                    break;
                 }
             }
         }
+        for (int i = max(block - startBlock, 0); i <= block - startBlock + speed; i++) {
+            if (laneList[i] == null || laneList[i].terrain == Terrain.FINISH) {
+                break;
+            }
+
+            blocks.add(laneList[i].terrain);
+
+        }
+        return blocks;
+    }
+    private List<Object> getBlocksInFront(int lane, int block, GameState gameState) {
+        List<Lane[]> map = gameState.lanes;
+        List<Object> blocks = new ArrayList<>();
+        int startBlock = map.get(0)[0].position.block;
+
+        Lane[] laneList = map.get(lane - 1);
+        int speed =gameState.player.speed;
         for (int i = max(block - startBlock, 0); i <= block - startBlock + speed; i++) {
             if (laneList[i] == null || laneList[i].terrain == Terrain.FINISH) {
                 break;
