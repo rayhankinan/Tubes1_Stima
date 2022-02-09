@@ -47,7 +47,7 @@ public class Bot {
         List<Object> blocksMax = getBlocksInFrontMax(myCar.position.lane, myCar.position.block, gameState); //blok maksimal yang dapat ditempuh player di lane yg sama
         List<Object> rightblocks = getBlocksInRightFront(myCar.position.lane, myCar.position.block, gameState); //blok maksimal yang dapat ditempuh player di lane kanannya
         List<Object> leftblocks = getBlocksInLeftFront(myCar.position.lane, myCar.position.block, gameState); //blok maksimal yang dapat ditempuh player di lane kirinya
-
+        List<Object> blocks = getBlocksInFront(myCar.position.lane, myCar.position.block, gameState);
         // Fix if car completely broken
         if (myCar.damage >= 5) {
             return FIX;
@@ -70,7 +70,6 @@ public class Bot {
                 if (damageFront != damageRight) {
                     if (damageFront < damageRight) {
                         if (PowerUp(PowerUps.LIZARD, myCar.powerups) > 0) {
-                            List<Object> blocks = getBlocksInFront(myCar.position.lane, myCar.position.block, gameState);
                             if(checkObstacle(blocks)) {
                                 return LIZARD;
                             }
@@ -83,8 +82,7 @@ public class Bot {
                     }
                     return TURN_RIGHT;
                 }
-                if (PowerUp(PowerUps.LIZARD, myCar.powerups) > 0) {
-                    List<Object> blocks = getBlocksInFront(myCar.position.lane, myCar.position.block, gameState);
+                if (PowerUp(PowerUps.LIZARD, myCar.powerups) > 0) {  
                     if(checkObstacle(blocks)) {
                         return LIZARD;
                     }
@@ -102,7 +100,6 @@ public class Bot {
                 if (damageFront != damageLeft) {
                     if (damageFront < damageLeft) {
                         if (PowerUp(PowerUps.LIZARD, myCar.powerups) > 0) {
-                            List<Object> blocks = getBlocksInFront(myCar.position.lane, myCar.position.block, gameState);
                             if(checkObstacle(blocks)) {
                                 return LIZARD;
                             }
@@ -116,7 +113,6 @@ public class Bot {
                     return TURN_LEFT;
                 }
                 if (PowerUp(PowerUps.LIZARD, myCar.powerups) > 0) {
-                    List<Object> blocks = getBlocksInFront(myCar.position.lane, myCar.position.block, gameState);
                     if(checkObstacle(blocks)) {
                         return LIZARD;
                     }
@@ -132,7 +128,6 @@ public class Bot {
             }
             if (damageLeft != 0 && damageRight != 0) {
                 if (PowerUp(PowerUps.LIZARD, myCar.powerups) > 0) {
-                    List<Object> blocks = getBlocksInFront(myCar.position.lane, myCar.position.block, gameState);
                     if(checkObstacle(blocks)) {
                         return LIZARD;
                     }
@@ -199,7 +194,19 @@ public class Bot {
             return Attack;
         }
 
-        // bisa ditembah mechanism turn right turn left
+        //kalo didepan kosong & gapunya boost & max speed , nyari lane dengan powerup paling banyak
+        if (blocks.contains(Terrain.OIL_POWER) || blocks.contains(Terrain.LIZARD) || blocks.contains(Terrain.TWEET) || blocks.contains(Terrain.EMP))
+        {
+            return DO_NOTHING;
+        }
+        if (rightblocks.contains(Terrain.OIL_POWER) || rightblocks.contains(Terrain.LIZARD) || rightblocks.contains(Terrain.TWEET) || rightblocks.contains(Terrain.EMP) && countDamage(rightblocks) == 0)
+        {
+            return TURN_RIGHT;
+        }
+        if (leftblocks.contains(Terrain.OIL_POWER) || leftblocks.contains(Terrain.LIZARD) || leftblocks.contains(Terrain.TWEET) || leftblocks.contains(Terrain.EMP) && countDamage(leftblocks) == 0)
+        {
+            return TURN_LEFT;
+        }
         return DO_NOTHING;
     }
 
