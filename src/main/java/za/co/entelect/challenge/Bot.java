@@ -307,11 +307,11 @@ public class Bot {
         return DO_NOTHING;
     }
 
-    //fungsi untuk menghitung banyak power up
+    //fungsi untuk menghitung banyak power up (selain boost)
     private int countPowerup(List<Terrain> blocks) {
         int count = 0;
         for (Terrain t : blocks) {
-            if (t == Terrain.EMP || t == Terrain.LIZARD) {
+            if (t == Terrain.EMP || t == Terrain.TWEET) {
                 count += 2;
             }
             else if (t == Terrain.LIZARD || t == Terrain.OIL_POWER) {
@@ -380,7 +380,7 @@ public class Bot {
             }
             return false;
         }
-        if (damage <= 3) {
+        if (damage == 3) {
             if (speed < Bot.speedState2) {
                 return true;
             }
@@ -446,10 +446,7 @@ public class Bot {
             }
         }
 
-        if (count >= 5) {
-            return 5;
-        }
-        return count;
+        return max(count, 5);
     }
 
     //fungsi melakukan cek apakah bisa melakukan boost hingga maxspeed
