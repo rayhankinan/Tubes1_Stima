@@ -307,11 +307,11 @@ public class Bot {
         return DO_NOTHING;
     }
 
-    //fungsi untuk menghitung banyak power up (selain boost)
+    //fungsi untuk menghitung banyak power up pada block (selain boost)
     private int countPowerup(List<Terrain> blocks) {
         int count = 0;
         for (Terrain t : blocks) {
-            if (t == Terrain.EMP || t == Terrain.TWEET) {
+            if (t == Terrain.EMP || t == Terrain.TWEET || t == Terrain.BOOST) {
                 count += 2;
             }
             else if (t == Terrain.LIZARD || t == Terrain.OIL_POWER) {
