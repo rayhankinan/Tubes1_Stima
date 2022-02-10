@@ -46,16 +46,16 @@ public class Bot {
         List<Boolean> cyberTruckMax = blocksMax.stream().map(element -> element.cyberTruck).collect(Collectors.toList());
 
         List<Lane> rightblocks = getBlocksInRightFront(myCar.position.lane, myCar.position.block, gameState); //blok maksimal yang dapat ditempuh player di lane kanannya
-        List<Terrain> terrainRight = blocksMax.stream().map(element -> element.terrain).collect(Collectors.toList());
-        List<Boolean> cyberTruckRight = blocksMax.stream().map(element -> element.cyberTruck).collect(Collectors.toList());
+        List<Terrain> terrainRight = rightblocks.stream().map(element -> element.terrain).collect(Collectors.toList());
+        List<Boolean> cyberTruckRight = rightblocks.stream().map(element -> element.cyberTruck).collect(Collectors.toList());
 
         List<Lane> leftblocks = getBlocksInLeftFront(myCar.position.lane, myCar.position.block, gameState); //blok maksimal yang dapat ditempuh player di lane kirinya
-        List<Terrain> terrainLeft = blocksMax.stream().map(element -> element.terrain).collect(Collectors.toList());
-        List<Boolean> cyberTruckLeft = blocksMax.stream().map(element -> element.cyberTruck).collect(Collectors.toList());
+        List<Terrain> terrainLeft = leftblocks.stream().map(element -> element.terrain).collect(Collectors.toList());
+        List<Boolean> cyberTruckLeft = leftblocks.stream().map(element -> element.cyberTruck).collect(Collectors.toList());
 
         List<Lane> blocks = getBlocksInFront(myCar.position.lane, myCar.position.block, gameState);
-        List<Terrain> terrainBlocks = blocksMax.stream().map(element -> element.terrain).collect(Collectors.toList());
-        List<Boolean> cyberTruckBlocks = blocksMax.stream().map(element -> element.cyberTruck).collect(Collectors.toList());
+        List<Terrain> terrainBlocks = blocks.stream().map(element -> element.terrain).collect(Collectors.toList());
+        List<Boolean> cyberTruckBlocks = blocks.stream().map(element -> element.cyberTruck).collect(Collectors.toList());
 
         // Fix if car completely broken
         if (myCar.damage >= 5) {
@@ -302,7 +302,12 @@ public class Bot {
         List<Boolean> cyberTruckBlocksMax = blocks.stream().map(element -> element.cyberTruck).collect(Collectors.toList());
 
         int speedNow = gameState.player.speed;
-        if (terrainBlocksMax.contains(Terrain.WALL) || cyberTruckBlocksMax.contains(true)) {
+        
+        if (cyberTruckBlocksMax.contains(true)) {
+            speedNow = 0;
+        }
+        else if(terrainBlocksMax.contains(Terrain.WALL))
+        {
             speedNow = 3;
         }
         else {
@@ -344,7 +349,7 @@ public class Bot {
         }
         for (boolean c : cyberTruckBlocksMax) {
             if (c) {
-                count += 2;
+                count += 5;
             }
         }
 
