@@ -41,21 +41,21 @@ public class Bot {
 
     public Command run(GameState gameState) {
         Car myCar = gameState.player;
-        List<Map<String, Object>> blocksMax = getBlocksInFrontMax(myCar.position.lane, myCar.position.block, gameState); //blok maksimal yang dapat ditempuh player di lane yg sama
-        List<Object> terrainBlocksMax = blocksMax.stream().map(element -> element.get("terrain")).collect(Collectors.toList());
-        List<Object> cyberTruckBlocksMax = blocksMax.stream().map(element -> element.get("cyberTruck")).collect(Collectors.toList());
+        List<Lane> blocksMax = getBlocksInFrontMax(myCar.position.lane, myCar.position.block, gameState); //blok maksimal yang dapat ditempuh player di lane yg sama
+        List<Terrain> terrainMax = blocksMax.stream().map(element -> element.terrain).collect(Collectors.toList());
+        List<Boolean> cyberTruckMax = blocksMax.stream().map(element -> element.cyberTruck).collect(Collectors.toList());
 
-        List<Map<String, Object>> rightblocks = getBlocksInRightFront(myCar.position.lane, myCar.position.block, gameState); //blok maksimal yang dapat ditempuh player di lane kanannya
-        List<Object> terrainRightBlocks = blocksMax.stream().map(element -> element.get("terrain")).collect(Collectors.toList());
-        List<Object> cyberTruckRightBlocks = blocksMax.stream().map(element -> element.get("cyberTruck")).collect(Collectors.toList());
+        List<Lane> rightblocks = getBlocksInRightFront(myCar.position.lane, myCar.position.block, gameState); //blok maksimal yang dapat ditempuh player di lane kanannya
+        List<Terrain> terrainRight = blocksMax.stream().map(element -> element.terrain).collect(Collectors.toList());
+        List<Boolean> cyberTruckRight = blocksMax.stream().map(element -> element.cyberTruck).collect(Collectors.toList());
 
-        List<Map<String, Object>> leftblocks = getBlocksInLeftFront(myCar.position.lane, myCar.position.block, gameState); //blok maksimal yang dapat ditempuh player di lane kirinya
-        List<Object> terrainLeftBlocks = blocksMax.stream().map(element -> element.get("terrain")).collect(Collectors.toList());
-        List<Object> cyberTruckLeftBlocks = blocksMax.stream().map(element -> element.get("cyberTruck")).collect(Collectors.toList());
+        List<Lane> leftblocks = getBlocksInLeftFront(myCar.position.lane, myCar.position.block, gameState); //blok maksimal yang dapat ditempuh player di lane kirinya
+        List<Terrain> terrainLeft = blocksMax.stream().map(element -> element.terrain).collect(Collectors.toList());
+        List<Boolean> cyberTruckLeft = blocksMax.stream().map(element -> element.cyberTruck).collect(Collectors.toList());
 
-        List<Map<String, Object>> blocks = getBlocksInFront(myCar.position.lane, myCar.position.block, gameState);
-        List<Object> terrainBlocks = blocksMax.stream().map(element -> element.get("terrain")).collect(Collectors.toList());
-        List<Object> cyberTruckBlocks = blocksMax.stream().map(element -> element.get("cyberTruck")).collect(Collectors.toList());
+        List<Lane> blocks = getBlocksInFront(myCar.position.lane, myCar.position.block, gameState);
+        List<Terrain> terrainBlocks = blocksMax.stream().map(element -> element.terrain).collect(Collectors.toList());
+        List<Boolean> cyberTruckBlocks = blocksMax.stream().map(element -> element.cyberTruck).collect(Collectors.toList());
 
         // Fix if car completely broken
         if (myCar.damage >= 5) {
@@ -156,7 +156,7 @@ public class Bot {
             }
             if (damageRight == 0) {
                 if (damageLeft == 0) {
-                    if (terrainLeftBlocks.contains(Terrain.BOOST)) {
+                    if (terrainLeft.contains(Terrain.BOOST)) {
                         return TURN_LEFT;
                     }
                 }
@@ -174,16 +174,16 @@ public class Bot {
         }
 
         //CHECK BOOST or ACCELERATE mechanism
-        if (terrainBlocksMax.contains(Terrain.BOOST) && countDamage(blocksMax) == 0) {
+        if (terrainMax.contains(Terrain.BOOST) && countDamage(blocksMax) == 0) {
             if (checkAcc(gameState)) {
                 return ACCELERATE;
             }
             return DO_NOTHING;
         }
-        if (terrainRightBlocks.contains(Terrain.BOOST) && countDamage(rightblocks) == 0) {
+        if (terrainRight.contains(Terrain.BOOST) && countDamage(rightblocks) == 0) {
             return TURN_RIGHT;
         }
-        if (terrainLeftBlocks.contains(Terrain.BOOST) && countDamage(leftblocks) == 0) {
+        if (terrainLeft.contains(Terrain.BOOST) && countDamage(leftblocks) == 0) {
             return TURN_LEFT;
         }
         if (checkAcc(gameState)) {
@@ -215,11 +215,11 @@ public class Bot {
         {
             return DO_NOTHING;
         }
-        if ((terrainRightBlocks.contains(Terrain.OIL_POWER) || terrainRightBlocks.contains(Terrain.LIZARD) || terrainRightBlocks.contains(Terrain.TWEET) || terrainRightBlocks.contains(Terrain.EMP)) && countDamage(rightblocks) == 0)
+        if ((terrainRight.contains(Terrain.OIL_POWER) || terrainRight.contains(Terrain.LIZARD) || terrainRight.contains(Terrain.TWEET) || terrainRight.contains(Terrain.EMP)) && countDamage(rightblocks) == 0)
         {
             return TURN_RIGHT;
         }
-        if ((terrainLeftBlocks.contains(Terrain.OIL_POWER) || terrainLeftBlocks.contains(Terrain.LIZARD) || terrainLeftBlocks.contains(Terrain.TWEET) || terrainLeftBlocks.contains(Terrain.EMP)) && countDamage(leftblocks) == 0)
+        if ((terrainLeft.contains(Terrain.OIL_POWER) || terrainLeft.contains(Terrain.LIZARD) || terrainLeft.contains(Terrain.TWEET) || terrainLeft.contains(Terrain.EMP)) && countDamage(leftblocks) == 0)
         {
             return TURN_LEFT;
         }
@@ -258,9 +258,9 @@ public class Bot {
     }
 
     // fungsi check obstacle
-    private boolean checkObstacle(List<Map<String, Object>> blocksMax) {
-        List<Object> terrainBlocksMax = blocksMax.stream().map(element -> element.get("terrain")).collect(Collectors.toList());
-        List<Object> cyberTruckBlocksMax = blocksMax.stream().map(element -> element.get("cyberTruck")).collect(Collectors.toList());
+    private boolean checkObstacle(List<Lane> blocksMax) {
+        List<Terrain> terrainBlocksMax = blocksMax.stream().map(element -> element.terrain).collect(Collectors.toList());
+        List<Boolean> cyberTruckBlocksMax = blocksMax.stream().map(element -> element.cyberTruck).collect(Collectors.toList());
 
         if (terrainBlocksMax.contains(Terrain.MUD) || terrainBlocksMax.contains(Terrain.WALL) || terrainBlocksMax.contains(Terrain.OIL_SPILL) || cyberTruckBlocksMax.contains(true)) {
             return true;
@@ -297,16 +297,16 @@ public class Bot {
     }
     
     // fungsi menghitung perkiraan speed setelah bergerak
-    private int blockReductionSpeed(List<Map<String, Object>> blocks, GameState gameState) {
-        List<Object> terrainBlocksMax = blocks.stream().map(element -> element.get("terrain")).collect(Collectors.toList());
-        List<Object> cyberTruckBlocksMax = blocks.stream().map(element -> element.get("cyberTruck")).collect(Collectors.toList());
+    private int blockReductionSpeed(List<Lane> blocks, GameState gameState) {
+        List<Terrain> terrainBlocksMax = blocks.stream().map(element -> element.terrain).collect(Collectors.toList());
+        List<Boolean> cyberTruckBlocksMax = blocks.stream().map(element -> element.cyberTruck).collect(Collectors.toList());
 
         int speedNow = gameState.player.speed;
         if (terrainBlocksMax.contains(Terrain.WALL) || cyberTruckBlocksMax.contains(true)) {
             speedNow = 3;
         }
         else {
-            for (Object t : terrainBlocksMax) {
+            for (Terrain t : terrainBlocksMax) {
                 if (t == Terrain.MUD || t == Terrain.OIL_SPILL) {
                     speedNow = lowerSpeed(speedNow);
                 }
@@ -329,12 +329,12 @@ public class Bot {
     }
 
     // fungsi menghitung perkiraan damage car
-    private int countDamage(List<Map<String, Object>> blocks) {
-        List<Object> terrainBlocksMax = blocks.stream().map(element -> element.get("terrain")).collect(Collectors.toList());
-        List<Object> cyberTruckBlocksMax = blocks.stream().map(element -> element.get("cyberTruck")).collect(Collectors.toList());
+    private int countDamage(List<Lane> blocks) {
+        List<Terrain> terrainBlocksMax = blocks.stream().map(element -> element.terrain).collect(Collectors.toList());
+        List<Boolean> cyberTruckBlocksMax = blocks.stream().map(element -> element.cyberTruck).collect(Collectors.toList());
 
         int count = 0;
-        for (Object t : terrainBlocksMax) {
+        for (Terrain t : terrainBlocksMax) {
             if (t == Terrain.MUD || t == Terrain.OIL_SPILL) {
                 count += 1;
             }
@@ -342,8 +342,8 @@ public class Bot {
                 count += 2;
             }
         }
-        for (Object c : cyberTruckBlocksMax) {
-            if (c.equals(true)) {
+        for (boolean c : cyberTruckBlocksMax) {
+            if (c) {
                 count += 2;
             }
         }
@@ -369,9 +369,9 @@ public class Bot {
      * Returns map of blocks and the objects in the for the current lanes, returns the amount of blocks that can be
      * traversed at max speed.
      **/
-    private List<Map<String, Object>> getBlocksInFrontMax(int lane, int block, GameState gameState) {
+    private List<Lane> getBlocksInFrontMax(int lane, int block, GameState gameState) {
         List<Lane[]> map = gameState.lanes;
-        List<Map<String, Object>> blocks = new ArrayList<>();
+        List<Lane> blocks = new ArrayList<>();
         int startBlock = map.get(0)[0].position.block;
 
         Lane[] laneList = map.get(lane - 1);
@@ -399,20 +399,14 @@ public class Bot {
                 break;
             }
 
-            Map<String, Object> obj = new HashMap<>();
-            obj.put("position", laneList[i].position);
-            obj.put("terrain", laneList[i].terrain);
-            obj.put("occupiedByPlayerId", laneList[i].occupiedByPlayerId);
-            obj.put("cyberTruck", laneList[i].cyberTruck);
-
-            blocks.add(obj);
+            blocks.add(laneList[i]);
 
         }
         return blocks;
     }
-    private List<Map<String, Object>> getBlocksInFront(int lane, int block, GameState gameState) {
+    private List<Lane> getBlocksInFront(int lane, int block, GameState gameState) {
         List<Lane[]> map = gameState.lanes;
-        List<Map<String, Object>> blocks = new ArrayList<>();
+        List<Lane> blocks = new ArrayList<>();
         int startBlock = map.get(0)[0].position.block;
 
         Lane[] laneList = map.get(lane - 1);
@@ -421,20 +415,15 @@ public class Bot {
             if (laneList[i] == null || laneList[i].terrain == Terrain.FINISH) {
                 break;
             }
-            Map<String, Object> obj = new HashMap<>();
-            obj.put("position", laneList[i].position);
-            obj.put("terrain", laneList[i].terrain);
-            obj.put("occupiedByPlayerId", laneList[i].occupiedByPlayerId);
-            obj.put("cyberTruck", laneList[i].cyberTruck);
-
-            blocks.add(obj);
+            blocks.add(laneList[i]);
 
         }
         return blocks;
     }
-    private List<Map<String, Object>> getBlocksInRightFront(int lane, int block, GameState gameState) {
+    private List<Lane> getBlocksInRightFront(int lane, int block, GameState gameState) {
         List<Lane[]> map = gameState.lanes;
-        List<Map<String, Object>> blocks = new ArrayList<>();
+        List<Lane> blocks = new ArrayList<>();
+
         int startBlock = map.get(0)[0].position.block;
         if (lane == 4) {
             return blocks;
@@ -445,20 +434,16 @@ public class Bot {
             if (laneList[i] == null || laneList[i].terrain == Terrain.FINISH) {
                 break;
             }
-            Map<String, Object> obj = new HashMap<>();
-            obj.put("position", laneList[i].position);
-            obj.put("terrain", laneList[i].terrain);
-            obj.put("occupiedByPlayerId", laneList[i].occupiedByPlayerId);
-            obj.put("cyberTruck", laneList[i].cyberTruck);
 
-            blocks.add(obj);
+            blocks.add(laneList[i]);
 
         }
         return blocks;
     }
-    private List<Map<String, Object>> getBlocksInLeftFront(int lane, int block, GameState gameState) {
+    private List<Lane> getBlocksInLeftFront(int lane, int block, GameState gameState) {
         List<Lane[]> map = gameState.lanes;
-        List<Map<String, Object>> blocks = new ArrayList<>();
+        List<Lane> blocks = new ArrayList<>();
+
         int startBlock = map.get(0)[0].position.block;
         if (lane == 1) {
             return blocks;
@@ -469,13 +454,8 @@ public class Bot {
             if (laneList[i] == null || laneList[i].terrain == Terrain.FINISH) {
                 break;
             }
-            Map<String, Object> obj = new HashMap<>();
-            obj.put("position", laneList[i].position);
-            obj.put("terrain", laneList[i].terrain);
-            obj.put("occupiedByPlayerId", laneList[i].occupiedByPlayerId);
-            obj.put("cyberTruck", laneList[i].cyberTruck);
 
-            blocks.add(obj);
+            blocks.add(laneList[i]);
 
         }
         return blocks;
