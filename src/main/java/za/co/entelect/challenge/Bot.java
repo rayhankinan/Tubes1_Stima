@@ -164,6 +164,12 @@ public class Bot {
         }
 
         //CHECK BOOST or ACCELERATE mechanism
+        if(blocksMax.contains(Terrain.BOOST) && countDamage(blocksMax) == 0) {
+            if (checkAcc(gameState)) {
+                return ACCELERATE;
+            }
+            return DO_NOTHING;    
+        }
         if (rightblocks.contains(Terrain.BOOST) && countDamage(rightblocks) == 0) {
             return TURN_RIGHT;
         }
@@ -199,11 +205,11 @@ public class Bot {
         {
             return DO_NOTHING;
         }
-        if (rightblocks.contains(Terrain.OIL_POWER) || rightblocks.contains(Terrain.LIZARD) || rightblocks.contains(Terrain.TWEET) || rightblocks.contains(Terrain.EMP) && countDamage(rightblocks) == 0)
+        if ((rightblocks.contains(Terrain.OIL_POWER) || rightblocks.contains(Terrain.LIZARD) || rightblocks.contains(Terrain.TWEET) || rightblocks.contains(Terrain.EMP)) && countDamage(rightblocks) == 0)
         {
             return TURN_RIGHT;
         }
-        if (leftblocks.contains(Terrain.OIL_POWER) || leftblocks.contains(Terrain.LIZARD) || leftblocks.contains(Terrain.TWEET) || leftblocks.contains(Terrain.EMP) && countDamage(leftblocks) == 0)
+        if ((leftblocks.contains(Terrain.OIL_POWER) || leftblocks.contains(Terrain.LIZARD) || leftblocks.contains(Terrain.TWEET) || leftblocks.contains(Terrain.EMP)) && countDamage(leftblocks) == 0)
         {
             return TURN_LEFT;
         }
@@ -212,15 +218,14 @@ public class Bot {
 
     //fungsi untuk melakukan attack (jika memungkinkan)
     private Command attack(GameState gameState) {
+        // EMP mechanism
+        if (PowerUp(PowerUps.EMP, gameState.player.powerups) > 0 && (gameState.player.position.block < gameState.opponent.position.block) && (gameState.opponent.speed > 3)) {
+            return EMP;
+        }
         // Tweet mechanism
         if (PowerUp(PowerUps.TWEET, gameState.player.powerups) > 0) {
             TWEET = new TweetCommand(gameState.opponent.position.lane,gameState.opponent.position.block + gameState.opponent.speed + 3);
             return TWEET;
-        }
-
-        // EMP mechanism
-        if (PowerUp(PowerUps.EMP, gameState.player.powerups) > 0 && (gameState.player.position.block < gameState.opponent.position.block)) {
-            return EMP;
         }
 
         // Oil mechanism
@@ -327,7 +332,7 @@ public class Bot {
     //fungsi melakukan cek apakah bisa melakukan boost hingga maxspeed
     private boolean canBoost(GameState gameState) {
         if (PowerUp(PowerUps.BOOST, gameState.player.powerups) > 0) {
-            if (gameState.player.damage > 0) {
+            if (gameState.player.damage > 0 || gameState.player.boosting) {
                 return false;
             }
             return true;
