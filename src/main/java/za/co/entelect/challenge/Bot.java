@@ -78,127 +78,51 @@ public class Bot {
                 if (damageFront != damageRight) {
                     if (damageFront < damageRight) {
                         if (PowerUp(PowerUps.LIZARD, myCar.powerups) > 0) {
-                            if(checkObstacle(blocks)) {
-                                return LIZARD;
-                            }
-                            return attack(gameState);
+                            return jumpORattack(gameState, blocks);
                         }
-                        if (checkAcc(gameState)) {
-                            return ACCELERATE;
-                        }
-                        return attack(gameState);
+                        return accelORattack(gameState);
                     }
-                    if(checkAcc(gameState)) {
-                        if(!checkObstacle(blocksAcc)) {
-                            return ACCELERATE;
-                        }
-                    }
-                    if(!checkObstacle(blocks)) {
-                        return DO_NOTHING;
-                    }
-                    return TURN_RIGHT;
+                    return chooseMoveObstacle(gameState, blocksAcc, blocks, "RIGHT");
                 }
                 if (PowerUp(PowerUps.LIZARD, myCar.powerups) > 0) {  
-                    if (checkObstacle(blocks)) {
-                        return LIZARD;
-                    }
-                    return attack(gameState);
+                    return jumpORattack(gameState, blocks);
                 }
                 if (SpeedFront >= SpeedRight) {
-                    if (checkAcc(gameState)) {
-                        return ACCELERATE;
-                    }
-                    return attack(gameState);
+                    return accelORattack(gameState);
                 }
-                if(checkAcc(gameState)) {
-                    if(!checkObstacle(blocksAcc)) {
-                        return ACCELERATE;
-                    }
-                }
-                if(!checkObstacle(blocks)) {
-                    return DO_NOTHING;
-                }
-                return TURN_RIGHT;
+                return chooseMoveObstacle(gameState, blocksAcc, blocks, "RIGHT");
             }
             if (myCar.position.lane == 4) {
                 if (damageFront != damageLeft) {
                     if (damageFront < damageLeft) {
                         if (PowerUp(PowerUps.LIZARD, myCar.powerups) > 0) {
-                            if (checkObstacle(blocks)) {
-                                return LIZARD;
-                            }
-                            return attack(gameState);
+                            return jumpORattack(gameState, blocks);
                         }
-                        if (checkAcc(gameState)) {
-                            return ACCELERATE;
-                        }
-                        return attack(gameState);
+                        return accelORattack(gameState);
                     }
-                    if(checkAcc(gameState)) {
-                        if(!checkObstacle(blocksAcc)) {
-                            return ACCELERATE;
-                        }
-                    }
-                    if(!checkObstacle(blocks)) {
-                        return DO_NOTHING;
-                    }
-                    return TURN_LEFT;
+                    return chooseMoveObstacle(gameState, blocksAcc, blocks, "LEFT");
                 }
                 if (PowerUp(PowerUps.LIZARD, myCar.powerups) > 0) {
-                    if (checkObstacle(blocks)) {
-                        return LIZARD;
-                    }
-                    return attack(gameState);
+                    return jumpORattack(gameState, blocks);
                 }
                 if (SpeedFront >= SpeedLeft) {
-                    if (checkAcc(gameState)) {
-                        return ACCELERATE;
-                    }
-                    return attack(gameState);
+                    return accelORattack(gameState);
                 }
-                if(checkAcc(gameState)) {
-                    if(!checkObstacle(blocksAcc)) {
-                        return ACCELERATE;
-                    }
-                }
-                if(!checkObstacle(blocks)) {
-                    return DO_NOTHING;
-                }
-                return TURN_LEFT;
+                return chooseMoveObstacle(gameState, blocksAcc, blocks, "LEFT");
             }
             if (damageLeft != 0 && damageRight != 0) {
                 if (PowerUp(PowerUps.LIZARD, myCar.powerups) > 0) {
-                    if (checkObstacle(blocks)) {
-                        return LIZARD;
-                    }
-                    return attack(gameState);
+                    return jumpORattack(gameState, blocks);
                 }
-                if (damageFront <= damageLeft && damageFront <= damageRight) {
-                    if (checkAcc(gameState)) {
-                        return ACCELERATE;
-                    }
-                    return attack(gameState);
-                }
-                if (damageLeft < damageRight) {
-                    if(checkAcc(gameState)) {
-                        if(!checkObstacle(blocksAcc)) {
-                            return ACCELERATE;
-                        }
-                    }
-                    if(!checkObstacle(blocks)) {
-                        return DO_NOTHING;
-                    }
-                    return TURN_LEFT;
-                }
-                if(checkAcc(gameState)) {
-                    if(!checkObstacle(blocksAcc)) {
-                        return ACCELERATE;
-                    }
-                }
-                if(!checkObstacle(blocks)) {
-                    return DO_NOTHING;
-                }
-                return TURN_RIGHT;
+            int[] damageCheck = {damageFront, damageLeft, damageRight};
+            Arrays.sort(damageCheck);
+            if (damageCheck[0] == damageFront) {
+                return accelORattack(gameState);
+            }
+            else if (damageCheck[0] == damageLeft) {
+                return chooseMoveObstacle(gameState, blocksAcc, blocks, "LEFT");
+            }
+            return chooseMoveObstacle(gameState, blocksAcc, blocks, "RIGHT");
             }
             if (damageRight == 0) {
                 if (damageLeft == 0) {
@@ -206,25 +130,9 @@ public class Bot {
                         return TURN_LEFT;
                     }
                 }
-                if(checkAcc(gameState)) {
-                    if(!checkObstacle(blocksAcc)) {
-                        return ACCELERATE;
-                    }
-                }
-                if(!checkObstacle(blocks)) {
-                    return DO_NOTHING;
-                }
-                return TURN_RIGHT;
+                return chooseMoveObstacle(gameState, blocksAcc, blocks, "RIGHT");
             }
-            if(checkAcc(gameState)) {
-                if(!checkObstacle(blocksAcc)) {
-                    return ACCELERATE;
-                }
-            }
-            if(!checkObstacle(blocks)) {
-                return DO_NOTHING;
-            }
-            return TURN_LEFT;
+            return chooseMoveObstacle(gameState, blocksAcc, blocks, "LEFT");
         }
 
         // Boost mechanism
@@ -270,12 +178,6 @@ public class Bot {
         if (Attack != DO_NOTHING) {
             return Attack;
         }
-
-        //FIX paling akhir
-        if (myCar.damage == 1 && myCar.speed == maxSpeed) {
-            return FIX;
-        }
-
         //kalo didepan kosong & gapunya boost & max speed , nyari lane dengan powerup paling banyak
         if ((countDamage(rightblocks) == 0) || (countDamage(leftblocks) == 0)) {
             int powerupFront = countPowerup(terrainBlocks);
@@ -306,7 +208,32 @@ public class Bot {
         }
         return DO_NOTHING;
     }
-
+    private Command accelORattack (GameState gameState) {
+        if (checkAcc(gameState)) {
+            return ACCELERATE;
+        }
+        return attack(gameState);
+    }
+    private Command jumpORattack (GameState gameState, List<Lane> blocks) {
+        if (checkObstacle(blocks)) {
+            return LIZARD;
+        }
+        return attack(gameState);
+    }
+    private Command chooseMoveObstacle (GameState gameState, List<Lane> blocksAcc, List<Lane> blocks, String side) {
+        if (checkAcc(gameState)) {
+            if(!checkObstacle(blocksAcc)) {
+                return ACCELERATE;
+            }
+        }
+        if (!checkObstacle(blocks)) {
+            return DO_NOTHING;
+        }
+        if (side == "RIGHT") {
+            return TURN_RIGHT;
+        }
+        return TURN_LEFT;
+    }
     //fungsi untuk menghitung banyak power up pada block (selain boost)
     private int countPowerup(List<Terrain> blocks) {
         int count = 0;
@@ -445,8 +372,10 @@ public class Bot {
                 count += 2;
             }
         }
-
-        return max(count, 5);
+        if (count >= 5) {
+            return 5;
+        }
+        return count;
     }
 
     //fungsi melakukan cek apakah bisa melakukan boost hingga maxspeed
