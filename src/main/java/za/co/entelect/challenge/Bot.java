@@ -54,6 +54,9 @@ public class Bot {
         }
 
         if (myCar.speed == minSpeed) {// ACCELERATE IF SPEED 0
+            if (canBoost(gameState)) {
+                return BOOST;
+            }
             return ACCELERATE;
         }
 
@@ -228,10 +231,13 @@ public class Bot {
     private int countPowerup(List<Terrain> blocks) {//fungsi untuk menghitung banyak power up pada block
         int count = 0;
         for (Terrain t : blocks) {
-            if (t == Terrain.EMP || t == Terrain.TWEET || t == Terrain.BOOST) {
+            if (t == Terrain.BOOST) {
+                count += 3;
+            }
+            else if (t == Terrain.EMP || t == Terrain.TWEET || t == Terrain.LIZARD) {
                 count += 2;
             }
-            else if (t == Terrain.LIZARD || t == Terrain.OIL_POWER) {
+            else if (t == Terrain.OIL_POWER) {
                 count += 1;
             }
         }
@@ -342,14 +348,14 @@ public class Bot {
                 return Bot.speedState[i+1];
             }
         }
-        return Bot.maxSpeed;
+        return speed;
     }
     private int countDamage(List<Lane> blocks) {// fungsi menghitung perkiraan damage car
         List<Terrain> terrainBlocks = blocks.stream().map(element -> element.terrain).collect(Collectors.toList());
         List<Boolean> cyberTruckBlocks = blocks.stream().map(element -> element.cyberTruck).collect(Collectors.toList());
         int count = 0;
         if (cyberTruckBlocks.contains(true)) {
-            return 10;
+            count += 3;
         }
         for (Terrain t : terrainBlocks) {
             if (t == Terrain.MUD || t == Terrain.OIL_SPILL) {
