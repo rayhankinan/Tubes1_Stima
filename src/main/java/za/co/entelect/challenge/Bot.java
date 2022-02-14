@@ -177,22 +177,22 @@ public class Bot {
             powerupList.sort((a, b) -> b - a);
 
             if (powerupList.get(0) == countPowerup(terrainLeft)) {
-                if (countDamage(leftblocks) == 0) {
+                if (myCar.position.lane != 1 && countDamage(leftblocks) == 0) {
                     return TURN_LEFT;
                 }
                 if (powerupList.get(1) == countPowerup(terrainRight)) {
-                    if (countDamage(rightblocks) == 0) {
+                    if (myCar.position.lane != 4 && countDamage(rightblocks) == 0) {
                         return TURN_RIGHT;
                     }
                 }
             }
 
             if (powerupList.get(0) == countPowerup(terrainRight)) {
-                if (countDamage(rightblocks) == 0) {
+                if (myCar.position.lane != 4 && countDamage(rightblocks) == 0) {
                     return TURN_RIGHT;
                 }
                 if (powerupList.get(1) == countPowerup(terrainLeft)) {
-                    if (countDamage(leftblocks) == 0) {
+                    if (myCar.position.lane != 1 && countDamage(leftblocks) == 0) {
                         return TURN_LEFT;
                     }
                 }
