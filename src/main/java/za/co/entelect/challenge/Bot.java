@@ -166,32 +166,36 @@ public class Bot {
         }
         
         if ((countDamage(rightblocks) == 0) || (countDamage(leftblocks) == 0)) {//kalo didepan kosong & gapunya boost & max speed , nyari lane dengan powerup paling banyak
-            int powerupFront = countPowerup(terrainBlocks);
-            int powerupRight = countPowerup(terrainRight);
-            int powerupLeft = countPowerup(terrainLeft);
-            if (powerupFront < powerupLeft && powerupFront < powerupRight) {
-                if (powerupLeft >= powerupRight) {
-                    if (countDamage(leftblocks) == 0) {
-                        return TURN_LEFT;
-                    }
-                    return TURN_RIGHT;
-                }
-                if(countDamage(rightblocks) == 0) {
-                    return TURN_RIGHT;
-                }
-                return TURN_LEFT;
-            }
-            else if (powerupFront < powerupRight) {
-                if (countDamage(rightblocks) == 0) {
-                    return TURN_RIGHT;
-                }
-            }
-            else if (powerupFront < powerupLeft) {
+            List<Integer> powerupList = new ArrayList<>();
+            powerupList.add(countPowerup(terrainBlocks));
+            powerupList.add(countPowerup(terrainRight));
+            powerupList.add(countPowerup(terrainLeft));
+
+            powerupList.sort((a, b) -> b - a);
+
+            if (powerupList.get(0) == countPowerup(terrainLeft)) {
                 if (countDamage(leftblocks) == 0) {
                     return TURN_LEFT;
                 }
+                if (powerupList.get(1) == countPowerup(terrainRight)) {
+                    if (countDamage(rightblocks) == 0) {
+                        return TURN_RIGHT;
+                    }
+                }
+            }
+
+            if (powerupList.get(0) == countPowerup(terrainRight)) {
+                if (countDamage(rightblocks) == 0) {
+                    return TURN_RIGHT;
+                }
+                if (powerupList.get(1) == countPowerup(terrainLeft)) {
+                    if (countDamage(leftblocks) == 0) {
+                        return TURN_LEFT;
+                    }
+                }
             }
         }
+
         return DO_NOTHING;
     }
     private Command accelORattack (GameState gameState) {
@@ -339,7 +343,7 @@ public class Bot {
             }
         }
         return Bot.maxSpeed;
-    }   
+    }
     private int countDamage(List<Lane> blocks) {// fungsi menghitung perkiraan damage car
         List<Terrain> terrainBlocks = blocks.stream().map(element -> element.terrain).collect(Collectors.toList());
         List<Boolean> cyberTruckBlocks = blocks.stream().map(element -> element.cyberTruck).collect(Collectors.toList());
