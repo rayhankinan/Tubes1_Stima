@@ -194,7 +194,6 @@ public class Bot {
         }
         return DO_NOTHING;
     }
-
     private Command accelORattack (GameState gameState) {
         if (checkAcc(gameState)) {
             return ACCELERATE;
