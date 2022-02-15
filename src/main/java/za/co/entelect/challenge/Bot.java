@@ -338,7 +338,7 @@ public class Bot {
         if (terrainBlocks.contains(Terrain.MUD) || terrainBlocks.contains(Terrain.WALL) || terrainBlocks.contains(Terrain.OIL_SPILL) || cyberTruckBlocks.contains(true)) {
             return true;
         }
-        if (occupiedBlocks.contains(gameState.opponent.id) && (gameState.player.speed > gameState.opponent.speed || gameState.opponent.speed <= 3) && (gameState.player.state != State.USED_EMP)) {
+        if (occupiedBlocks.contains(gameState.opponent.id) && (gameState.player.speed > higherSpeed(gameState.opponent.speed)  || gameState.opponent.speed <= 3) && (gameState.player.state != State.USED_EMP)) {
             return true;
         }
         return false;
