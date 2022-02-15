@@ -29,6 +29,8 @@ public enum State {
     USED_LIZARD,
     @SerializedName("USED_TWEET")
     USED_TWEET,
+    @SerializedName("USED_EMP")
+    USED_EMP,
     @SerializedName("HIT_WALL")
     HIT_WALL,
     @SerializedName("HIT_CYBER_TRUCK")
