@@ -111,12 +111,12 @@ public class Bot {
                 }
                 Integer[] damageCheck = {damageFront, damageLeft, damageRight};
                 Arrays.sort(damageCheck);
-                if (damageCheck[0] == damageCheck[2]) {
+                if (damageCheck[0].equals(damageCheck[2])) {
                     Integer[] powerCheck = {powerFront, powerLeft, powerRight};
                     Arrays.sort(powerCheck, Collections.reverseOrder());
                     return CompareLine(powerCheck, powerFront, powerLeft, powerRight, gameState, blocksAcc, blocks);
                 }
-                if (damageCheck[0] == damageCheck[1]) {
+                if (damageCheck[0].equals(damageCheck[1])) {
                     if (damageCheck[2] == damageRight) {
                         if (powerFront >= powerLeft) {
                             return accelORattack(gameState);
@@ -243,7 +243,7 @@ public class Bot {
         if (checkObstacle(blocks,gameState)) {
             Terrain jump = (blocks.size() >= gameState.player.speed) ? blocks.get(gameState.player.speed - 1).terrain : Terrain.EMPTY ;
             if (jump != Terrain.WALL && jump != Terrain.OIL_SPILL && jump != Terrain.MUD) {
-                Boolean cyberTruck = (blocks.size() >= gameState.player.speed) ? blocks.get(gameState.player.speed - 1).cyberTruck : false;
+                boolean cyberTruck = blocks.size() >= gameState.player.speed && blocks.get(gameState.player.speed - 1).cyberTruck;
                 if (!cyberTruck) {
                     return LIZARD;
                 }
@@ -269,7 +269,7 @@ public class Bot {
         if (PowerUp(PowerUps.LIZARD, gameState.player.powerups) > 0) {
             Terrain jump = (blocks.size() >= gameState.player.speed) ? blocks.get(gameState.player.speed - 1).terrain : Terrain.EMPTY ;
             if (jump != Terrain.WALL && jump != Terrain.OIL_SPILL && jump != Terrain.MUD) {
-                Boolean cyberTruck = (blocks.size() >= gameState.player.speed) ? blocks.get(gameState.player.speed - 1).cyberTruck : false;
+                boolean cyberTruck = blocks.size() >= gameState.player.speed && blocks.get(gameState.player.speed - 1).cyberTruck;
                 if (!cyberTruck) {
                     return LIZARD;
                 }
