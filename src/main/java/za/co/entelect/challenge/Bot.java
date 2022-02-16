@@ -74,6 +74,9 @@ public class Bot {
             if ((myCar.position.block + higherSpeed(myCar.speed) >= 1500) && checkAcc(gameState) && (!cybertruck.contains(true))) {
                 return ACCELERATE;
             }
+            if (((myCar.position.block + myCar.speed >= 1500) && (!cybertruck.contains(true))) || countDamage(blocks) == 0) {
+                return attack(gameState);
+            }
         }
 
         if ((opponent.position.block >= 1400 || myCar.position.block >= 1400) && (countDamage(blocks) == 0)) { //Mechanism END Condition, use EMP to stop enemy
