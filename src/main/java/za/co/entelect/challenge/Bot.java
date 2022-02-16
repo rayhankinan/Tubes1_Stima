@@ -3,7 +3,6 @@ package za.co.entelect.challenge;
 import za.co.entelect.challenge.command.*;
 import za.co.entelect.challenge.entities.*;
 import za.co.entelect.challenge.enums.PowerUps;
-import za.co.entelect.challenge.enums.State;
 import za.co.entelect.challenge.enums.Terrain;
 
 import java.util.*;
@@ -77,9 +76,6 @@ public class Bot {
                     }
                     return chooseMoveObstacle(gameState, blocksAcc, blocks, "RIGHT", damageRight);
                 }
-                if (damageRight == 0) {
-                    return TURN_RIGHT;
-                }
                 if (PowerUp(PowerUps.LIZARD, myCar.powerups) > 0) {  
                     return jumpORattack(gameState, blocks);
                 }
@@ -97,9 +93,6 @@ public class Bot {
                         return accelORattack(gameState);
                     }
                     return chooseMoveObstacle(gameState, blocksAcc, blocks, "LEFT", damageLeft);
-                }
-                if (damageLeft == 0) {
-                    return TURN_LEFT;
                 }
                 if (PowerUp(PowerUps.LIZARD, myCar.powerups) > 0) {
                     return jumpORattack(gameState, blocks);
@@ -282,6 +275,19 @@ public class Bot {
                 }
             }
         }
+        int damageAcc = countDamage(blocksAcc);
+        int damageNothing = countDamage(blocks);
+        Integer[] ArrDamage = {damageAcc, damageNothing, damage};
+        Arrays.sort(ArrDamage);
+        if (ArrDamage[0] == damageAcc) {
+            if (checkAcc(gameState)) {
+                return ACCELERATE;
+            }
+            return attack(gameState);
+        }
+        if(ArrDamage[0] == damageNothing) {
+            return attack(gameState);
+        }
         if (side.equals("RIGHT")) {
             return TURN_RIGHT;
         }
@@ -291,10 +297,10 @@ public class Bot {
     private int countPowerup(List<Terrain> blocks) {//fungsi untuk menghitung banyak power up pada block
         int count = 0;
         for (Terrain t : blocks) {
-            if (t == Terrain.BOOST) {
+            if (t == Terrain.BOOST || t == Terrain.EMP) {
                 count += 3;
             }
-            else if (t == Terrain.EMP || t == Terrain.TWEET || t == Terrain.LIZARD) {
+            else if (t == Terrain.TWEET || t == Terrain.LIZARD) {
                 count += 2;
             }
             else if (t == Terrain.OIL_POWER) {
@@ -308,17 +314,34 @@ public class Bot {
         Car opponent = gameState.opponent;       
         if (PowerUp(PowerUps.EMP, player.powerups) > 0 && (player.position.block < opponent.position.block)) {// EMP mechanism
             if (Math.abs(player.position.lane - opponent.position.lane) <= 1) {
-                if ((player.position.lane != opponent.position.lane) || (player.position.block <= opponent.position.block - player.speed + 2)) {
+                if ((player.position.lane != opponent.position.lane) || (player.position.block <= opponent.position.block - player.speed + 3)) {
+                    return EMP;
+                }
+                if (PowerUp(PowerUps.EMP, player.powerups) > 8) {
                     return EMP;
                 }
             }
         }
-        if (PowerUp(PowerUps.TWEET, gameState.player.powerups) > 0) {// Tweet mechanism
-            TWEET = new TweetCommand(gameState.opponent.position.lane,gameState.opponent.position.block + gameState.opponent.speed + 3);
-            return TWEET;
-        }
-        if (PowerUp(PowerUps.OIL, gameState.player.powerups) > 0 && (gameState.player.position.block > gameState.opponent.position.block)) {// Oil mechanism
+        if ((PowerUp(PowerUps.OIL, player.powerups) > 0) && (player.position.block > opponent.position.block) && (player.position.block <= opponent.position.block + opponent.speed)) {
             return OIL;
+        }
+        if (PowerUp(PowerUps.TWEET, gameState.player.powerups) > 0) {// Tweet mechanism
+            if (Math.abs(player.position.block - opponent.position.block) >= 8) {
+                TWEET = new TweetCommand(gameState.opponent.position.lane,gameState.opponent.position.block + higherSpeed(gameState.opponent.speed)  + 3);
+                return TWEET;
+            }
+            if (PowerUp(PowerUps.TWEET, player.powerups) > 6) {
+                TWEET = new TweetCommand(gameState.opponent.position.lane,gameState.opponent.position.block + higherSpeed(gameState.opponent.speed)  + 3);
+                return TWEET;
+            }
+        }
+        if (PowerUp(PowerUps.OIL, gameState.player.powerups) > 0) {// Oil mechanism
+            if (gameState.player.position.block > gameState.opponent.position.block) {
+                return OIL;
+            }
+            if (PowerUp(PowerUps.OIL, player.powerups) > 5) {
+                return OIL;
+            }
         }  
         return DO_NOTHING;// Default return value
     }
@@ -335,10 +358,12 @@ public class Bot {
         List<Terrain> terrainBlocks = blocks.stream().map(element -> element.terrain).collect(Collectors.toList());
         List<Boolean> cyberTruckBlocks = blocks.stream().map(element -> element.cyberTruck).collect(Collectors.toList());
         List<Integer> occupiedBlocks = blocks.stream().map(element -> element.occupiedByPlayerId).collect(Collectors.toList());
+        Car player = gameState.player;
+        Car opponent = gameState.opponent;
         if (terrainBlocks.contains(Terrain.MUD) || terrainBlocks.contains(Terrain.WALL) || terrainBlocks.contains(Terrain.OIL_SPILL) || cyberTruckBlocks.contains(true)) {
             return true;
         }
-        if (occupiedBlocks.contains(gameState.opponent.id) && (gameState.player.speed > higherSpeed(gameState.opponent.speed)  || gameState.opponent.speed <= 3) && (gameState.player.state != State.USED_EMP)) {
+        if (occupiedBlocks.contains(opponent.id) && (player.speed + player.position.block > higherSpeed(gameState.opponent.speed) + opponent.position.block)) {
             return true;
         }
         return false;
