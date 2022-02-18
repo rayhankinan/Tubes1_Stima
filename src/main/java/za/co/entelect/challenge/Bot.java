@@ -34,7 +34,7 @@ public class Bot {
     private final static Command TURN_RIGHT = new ChangeLaneCommand(1);
     private final static Command TURN_LEFT = new ChangeLaneCommand(-1);
 
-    public Bot() {
+    public Bot() { 
     }
 
     public Command run(GameState gameState) {
