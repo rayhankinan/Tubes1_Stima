@@ -399,7 +399,7 @@ public class Bot {
         }
         if (PowerUp(PowerUps.TWEET, gameState.player.powerups) > 0) {// Tweet mechanism (second most powerful overall)
             if (Math.abs(player.position.block - opponent.position.block) >= 8) {
-                TWEET = new TweetCommand(gameState.opponent.position.lane,gameState.opponent.position.block + higherSpeed(gameState.opponent.speed)  + 3);
+                TWEET = new TweetCommand(gameState.opponent.position.lane,gameState.opponent.position.block + higherSpeed(gameState.opponent.speed) + 3);
                 return TWEET;
             }
         }
