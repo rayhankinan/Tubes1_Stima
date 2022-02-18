@@ -57,7 +57,6 @@ Hal ini dilakukan agar *power up pick-ups* yang telah diambil sebelumnya tidak t
 .
 │   .gitignore
 │   bot.json
-│   java-starter-bot.iml
 │   pom.xml
 │   README.md
 │
