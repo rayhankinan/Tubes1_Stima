@@ -61,9 +61,11 @@ Hal ini dilakukan agar *power up pick-ups* yang telah diambil sebelumnya tidak t
 │   pom.xml
 │   README.md
 │
-│
 ├───bin
 │       FORMULA1.jar
+│
+├───doc
+│       FORMULA1.pdf
 │
 └───src
     └───main
