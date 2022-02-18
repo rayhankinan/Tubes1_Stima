@@ -53,12 +53,77 @@ Harapannya, setiap *command USE_<POWER_UP>* yang dieksekusi dapat mengenai *car*
 Hal ini dilakukan agar *power up pick-ups* yang telah diambil sebelumnya tidak terbuang sia-sia serta tidak terjadi penumpukan *power up* pada *inventory*.
 
 ## Struktur Program
+```bash
+.
+│   .gitignore
+│   bot.json
+│   java-starter-bot.iml
+│   pom.xml
+│   README.md
+│
+│
+├───bin
+│       FORMULA1.jar
+│
+└───src
+    └───main
+        └───java
+            └───za
+                └───co
+                    └───entelect
+                        └───challenge
+                            │   Bot.java
+                            │   Main.java
+                            │
+                            ├───command
+                            │       AccelerateCommand.java
+                            │       BoostCommand.java
+                            │       ChangeLaneCommand.java
+                            │       Command.java
+                            │       DecelerateCommand.java
+                            │       DoNothingCommand.java
+                            │       EmpCommand.java
+                            │       FixCommand.java
+                            │       LizardCommand.java
+                            │       OilCommand.java
+                            │       TweetCommand.java
+                            │
+                            ├───entities
+                            │       Car.java
+                            │       GameState.java
+                            │       Lane.java
+                            │       Position.java
+                            │
+                            └───enums
+                                    Direction.java
+                                    PowerUps.java
+                                    State.java
+                                    Terrain.java
+```
 
 ## Requirement Program
+* Java Virtual Machine (JVM) versi 11 atau lebih baru.
+* IntelliJ IDEA versi 2021.3 atau lebih baru.
+* Apache Maven 3.8.4
 
 ## Cara Kompilasi Program
+* Download file `starter-pack.zip` pada link [berikut](https://github.com/EntelectChallenge/2020-Overdrive/releases/download/2020.3.4/starter-pack.zip).
+* Unzip file `starter-pack.zip` pada mesin eksekusi.
+* Lakukan cloning repository ini sebagai folder ke dalam folder `starter-pack`.
+* Buka IDE IntelliJ IDEA pada mesin eksekusi.
+* Seharusnya, Apache Maven sudah terinstall di dalam IntelliJ IDEA. Jika Maven belum ada, Anda dapat mendownloadnya pada link [berikut](https://maven.apache.org/download.cgi).
+* Klik kanan pada file `pom.xml`, kemudian pilih perintah `Add to Maven`.
+* Kemudian, jalankan perintah built `compile` dan `install` pada Apache Maven.
+* Bila terdapat file `.jar` baru pada folder `target`, maka program berhasil dikompilasi.
+* Anda dapat mengubah directory hasil kompilasi Apache Maven dengan menggunakan file konfigurasi `bot.json`. Untuk penjelasan mengenai file konfigurasi, Anda dapat mengakses laporan pada folder `doc`.
 
 ## Cara Menjalankan Program
+* Pastikan directory file dan folder dari bot pada file konfigurasi `game-runner-config.json` sudah sesuai dengan folder bot yang ingin dijalankan. Untuk penjelasan mengenai file konfigurasi, Anda dapat mengakses laporan pada folder `doc`.
+* Untuk pengguna OS Windows, Anda dapat menjalankan program dengan membuka file `run.bat` atau menjalankannya dengan mengetikkan perintah `./run` pada command prompt.
+* Untuk pengguna OS Linux atau macOS, Anda dapat menjalan program dengan mengetikkan perintah `make run` pada command prompt.
+* Pastikan Anda memiliki memori yang cukup untuk mencatat match logs.
+* Jika berhasil, maka akan terdapat console yang menampilkan keadaan permainan.
+* Anda dapat melihat catatan historis dari pertandingan-pertandingan sebelumnya pada folder `match-logs`.
 
 ## Link Demo Program
 * https://www.youtube.com/watch?v=5rKVX4CT4i0
