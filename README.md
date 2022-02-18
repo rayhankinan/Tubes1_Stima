@@ -127,9 +127,9 @@ Hal ini dilakukan agar *power up pick-ups* yang telah diambil sebelumnya tidak t
 * Anda dapat melihat catatan historis dari pertandingan-pertandingan sebelumnya pada folder `match-logs`.
 
 ## Link Demo Program
-* https://www.youtube.com/watch?v=5rKVX4CT4i0
+* [Tubes Stima 1 - Formula 1](https://www.youtube.com/watch?v=5rKVX4CT4i0)
 
 ## Author Program
 * [Rayhan Kinan Muhannad - 13520065](https://github.com/rayhankinan)
-* [Andhika Arta Aryanto](https://github.com/dhikaarta)
-* [Aira Thalca Avila Putra](https://github.com/airathalca)
+* [Andhika Arta Aryanto - 13520081](https://github.com/dhikaarta)
+* [Aira Thalca Avila Putra - 13520101](https://github.com/airathalca)
